@@ -1,26 +1,23 @@
 import datatime
 
-from flask import Flask, render_template
+from flask import Flask, render_template, request, session
+
+form flask_session import Session
 
 app = Flask(__name__)
 
-@app.route("/")
+app.config["SESSION_PERMANENT"] = False
+app.comfig["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+notes = []
+
+@app.route("/", methods = ["GET", "POST"])
 def index():
-  headline = "Hello, world!"
-  return render_template("index.html", headline=headline)
+  if session.get("notes") is None:
+    session["notes"] = []
+  if request.method == "POST":
+    note = request.form.get("note")
+    session["notes"].append(note)
+  return render_template("index.html", notes = session["notes"])
 
-@app.route("/bye")
-def bye():
-  headline = "Goodbye!"
-  return render_template("index.html", headline=headline)
-
-@app.route("/isitnewyear")
-def isItNewYear():
-  now = datetime.datetime.now()
-  new_year = now.month() == 1 and now.day == 1
-  return render_template("index.html", new_year = new_year)
-
-@app.route("/<string:name>")
-def hello(name):
-  name = name.capitalize()
-  return f"Hello, {name}!"
